@@ -1,3 +1,12 @@
+(*
+ * This is a naive implementation of a peresistant union-find
+ * data structure.  We use a red black tree map as the underlying
+ * implementation.  Entries get mapped to their parent, and the 
+ * representative member of the class is found by following the 
+ * chain of parents, until no parent is found.  This has the downside
+ * of not being able to support path compression and that lookups/unions
+ * take log time.  
+ *)
 
 functor NaiveUnionFind(
     Arg : ORD_KEY

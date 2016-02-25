@@ -1,3 +1,7 @@
+(*
+ * This is an implementation of persistant arrays, which
+ * avoids copying the entire array on updates.  
+ *)
 
 signature PersistantArraySig =
 sig
@@ -8,13 +12,14 @@ sig
     val printArr : 'a array * ('a -> string) -> unit
 end
 
-structure PersistantArray  =
+structure PersistantArray : PersistantArraySig =
 struct
 
 datatype 'a array = A of 'a data ref
      and 'a data = Arr of 'a Array.array
 		 | Diff of int * 'a * 'a array
 
+(*create a new array*)
 fun init(n, f) = A (ref (Arr (Array.tabulate(n, f))))
 
 (* reverse the indirections from this Diff node (if any) to the 
@@ -34,7 +39,9 @@ fun reroot(A arr) =
 		  val _ = arr' := Diff(i, old, A arr)
 		  val _ = arr := Arr data
 	      in () end
-	      )
+      )
+
+(*get a value of an array, rerooting if necessary*)
 fun get(x as A arr, i) = (
     reroot x;
     case !arr
@@ -42,6 +49,7 @@ fun get(x as A arr, i) = (
       | Diff(i', v, next) => raise Fail "Impossible!"
 )
 
+(*update the array, rerooting if necessary*)
 fun set(x as A arr, i, v) = (
     reroot x;
     case !arr
